@@ -1,0 +1,27 @@
+{
+  "name": "Manual de Urgencias",
+  "short_name": "Urgencias",
+  "description": "Protocolos médicos de urgencias para profesionales sanitarios",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f8fc",
+  "theme_color": "#1e5a8a",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "es",
+  "categories": ["medical", "health"],
+  "icons": [
+    {
+      "src": "/icon-192x192.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
