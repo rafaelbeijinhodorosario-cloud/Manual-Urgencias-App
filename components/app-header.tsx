@@ -1,13 +1,14 @@
 'use client'
 
-import { Menu, Activity } from 'lucide-react'
+import { Menu, Activity, Calculator } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface AppHeaderProps {
   onMenuClick: () => void
+  onCalculatorClick?: () => void
 }
 
-export function AppHeader({ onMenuClick }: AppHeaderProps) {
+export function AppHeader({ onMenuClick, onCalculatorClick }: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-10 bg-primary text-primary-foreground shadow-sm">
       <div className="flex items-center justify-between px-4 py-3">
@@ -26,7 +27,19 @@ export function AppHeader({ onMenuClick }: AppHeaderProps) {
           </div>
           <h1 className="font-semibold text-lg tracking-tight">Manual de Urgencias</h1>
         </div>
-        <div className="w-10" /> {/* Spacer for centering */}
+        {onCalculatorClick ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onCalculatorClick}
+            className="text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
+          >
+            <Calculator className="h-5 w-5" />
+            <span className="sr-only">Calculadoras</span>
+          </Button>
+        ) : (
+          <div className="w-10" />
+        )}
       </div>
     </header>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronRight, BookOpen, Activity } from 'lucide-react'
+import { ChevronRight, BookOpen, Activity, Building2, Calculator } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -25,10 +25,12 @@ interface SideMenuProps {
   onOpenChange: (open: boolean) => void
   onSelectProtocol: (protocolId: string) => void
   onSelectChapter?: (chapterNumber: number) => void
+  onOpenHuil?: () => void
+  onOpenCalculators?: () => void
   trigger?: React.ReactNode
 }
 
-export function SideMenu({ isOpen, onOpenChange, onSelectProtocol, onSelectChapter, trigger }: SideMenuProps) {
+export function SideMenu({ isOpen, onOpenChange, onSelectProtocol, onSelectChapter, onOpenHuil, onOpenCalculators, trigger }: SideMenuProps) {
   const chapters = getAllChapters()
   
   const handleSelectProtocol = (protocolId: string) => {
@@ -62,6 +64,47 @@ export function SideMenu({ isOpen, onOpenChange, onSelectProtocol, onSelectChapt
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-5.5rem)]">
           <div className="p-4">
+            {/* Hospital & Tools Section */}
+            {(onOpenHuil || onOpenCalculators) && (
+              <div className="mb-6">
+                <h3 className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider mb-3 px-1">
+                  Herramientas
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {onOpenHuil && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        onOpenHuil()
+                        onOpenChange(false)
+                      }}
+                      className="flex flex-col items-center gap-2 h-auto py-4 px-3 hover:bg-sidebar-accent rounded-xl transition-colors border border-sidebar-border/50"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-500/15">
+                        <Building2 className="h-5 w-5 text-sky-500" />
+                      </div>
+                      <span className="text-xs text-sidebar-foreground">Mi Hospital</span>
+                    </Button>
+                  )}
+                  {onOpenCalculators && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        onOpenCalculators()
+                        onOpenChange(false)
+                      }}
+                      className="flex flex-col items-center gap-2 h-auto py-4 px-3 hover:bg-sidebar-accent rounded-xl transition-colors border border-sidebar-border/50"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15">
+                        <Calculator className="h-5 w-5 text-violet-500" />
+                      </div>
+                      <span className="text-xs text-sidebar-foreground">Calculadoras</span>
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+            
             {/* Chapters Section */}
             {chapters.length > 0 && (
               <div className="mb-6">
