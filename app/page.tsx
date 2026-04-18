@@ -8,15 +8,19 @@ import { SearchResults } from '@/components/search-results'
 import { SideMenu } from '@/components/side-menu'
 import { ProtocolDetail } from '@/components/protocol-detail'
 import { ChapterViewer } from '@/components/chapter-viewer'
+import { HuilModule } from '@/components/huil-module'
+import { CalculatorsModule } from '@/components/calculators-module'
 import { searchProtocols, getProtocolById } from '@/lib/protocols'
 import { getChapterByNumber, type ChapterContent } from '@/lib/chapters-content'
-import { Activity, ChevronRight, BookOpen } from 'lucide-react'
+import { Activity, ChevronRight, BookOpen, Building2, Calculator } from 'lucide-react'
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [selectedProtocolId, setSelectedProtocolId] = useState<string | null>(null)
   const [selectedChapter, setSelectedChapter] = useState<ChapterContent | null>(null)
+  const [showHuilModule, setShowHuilModule] = useState(false)
+  const [showCalculators, setShowCalculators] = useState(false)
 
   const searchResults = useMemo(() => {
     return searchProtocols(searchQuery)
@@ -45,9 +49,7 @@ export default function Home() {
   }, [])
 
   const handleSelectChapter = useCallback((chapterNumber: number) => {
-    console.log('[v0] handleSelectChapter called with:', chapterNumber)
     const chapter = getChapterByNumber(chapterNumber)
-    console.log('[v0] chapter found:', chapter ? chapter.title : 'NOT FOUND')
     if (chapter) {
       setSelectedChapter(chapter)
       setIsMenuOpen(false)
@@ -57,6 +59,45 @@ export default function Home() {
   const handleBackFromChapter = useCallback(() => {
     setSelectedChapter(null)
   }, [])
+
+  const handleOpenHuil = useCallback(() => {
+    setShowHuilModule(true)
+  }, [])
+
+  const handleBackFromHuil = useCallback(() => {
+    setShowHuilModule(false)
+  }, [])
+
+  const handleOpenCalculators = useCallback(() => {
+    setShowCalculators(true)
+  }, [])
+
+  const handleBackFromCalculators = useCallback(() => {
+    setShowCalculators(false)
+  }, [])
+
+  const handleNavigateToChapterFromCalculator = useCallback((chapterNumber: number) => {
+    const chapter = getChapterByNumber(chapterNumber)
+    if (chapter) {
+      setSelectedChapter(chapter)
+      setShowCalculators(false)
+    }
+  }, [])
+
+  // Show HUIL Module
+  if (showHuilModule) {
+    return <HuilModule onBack={handleBackFromHuil} />
+  }
+
+  // Show Calculators Module
+  if (showCalculators) {
+    return (
+      <CalculatorsModule
+        onBack={handleBackFromCalculators}
+        onNavigateToChapter={handleNavigateToChapterFromCalculator}
+      />
+    )
+  }
 
   // Show chapter viewer
   if (selectedChapter) {
@@ -82,8 +123,11 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Header with menu trigger */}
-      <AppHeader onMenuClick={() => setIsMenuOpen(true)} />
+      {/* Header with menu trigger and calculator */}
+      <AppHeader 
+        onMenuClick={() => setIsMenuOpen(true)} 
+        onCalculatorClick={handleOpenCalculators}
+      />
 
       {/* Side Menu */}
       <SideMenu
@@ -91,6 +135,8 @@ export default function Home() {
         onOpenChange={setIsMenuOpen}
         onSelectProtocol={handleSelectProtocol}
         onSelectChapter={handleSelectChapter}
+        onOpenHuil={handleOpenHuil}
+        onOpenCalculators={handleOpenCalculators}
       />
 
       {/* Main Content */}
@@ -125,6 +171,42 @@ export default function Home() {
             />
           ) : (
             <div className="space-y-8">
+              {/* Hospital & Tools Section */}
+              <section>
+                <h2 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded bg-primary/10">
+                    <Building2 className="h-3 w-3 text-primary" />
+                  </span>
+                  Herramientas
+                </h2>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handleOpenHuil}
+                    className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-border text-center hover:shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]"
+                  >
+                    <div className="w-12 h-12 bg-sky-500/10 rounded-xl flex items-center justify-center">
+                      <Building2 className="h-6 w-6 text-sky-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-foreground text-sm">Mi Hospital</h3>
+                      <p className="text-xs text-muted-foreground">HUIL</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={handleOpenCalculators}
+                    className="flex flex-col items-center gap-2 p-4 bg-card rounded-xl border border-border text-center hover:shadow-sm hover:border-primary/30 transition-all active:scale-[0.98]"
+                  >
+                    <div className="w-12 h-12 bg-violet-500/10 rounded-xl flex items-center justify-center">
+                      <Calculator className="h-6 w-6 text-violet-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-foreground text-sm">Calculadoras</h3>
+                      <p className="text-xs text-muted-foreground">Escalas clínicas</p>
+                    </div>
+                  </button>
+                </div>
+              </section>
+
               <QuickAccess onSelect={handleSelectProtocol} />
 
               {/* Available Chapters Section */}
