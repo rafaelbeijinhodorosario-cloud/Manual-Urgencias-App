@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from 'react'
 import { AppHeader } from '@/components/app-header'
 import { SearchBar } from '@/components/search-bar'
-import { QuickAccess } from '@/components/quick-access'
+import { Favorites } from '@/components/favorites'
 import { SearchResults } from '@/components/search-results'
 import { SideMenu } from '@/components/side-menu'
 import { ProtocolDetail } from '@/components/protocol-detail'
@@ -207,7 +207,10 @@ export default function Home() {
                 </div>
               </section>
 
-              <QuickAccess onSelect={handleSelectProtocol} />
+              <Favorites 
+                onSelectChapter={handleSelectChapter}
+                onAddFavorite={() => setIsMenuOpen(true)}
+              />
 
               {/* Available Chapters Section */}
               <section>

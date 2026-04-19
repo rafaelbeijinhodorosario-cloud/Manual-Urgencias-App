@@ -1,9 +1,11 @@
 'use client'
 
-import { ArrowLeft, BookOpen, Users, Lightbulb, ChevronRight, Share2, Bookmark } from 'lucide-react'
+import { ArrowLeft, BookOpen, Users, Lightbulb, ChevronRight, Share2, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useFavorites } from '@/hooks/use-favorites'
+import { getSectionByChapterId } from '@/lib/manual-index'
 import type { ChapterContent, ContentSection } from '@/lib/chapters-content'
 
 interface ChapterViewerProps {
@@ -97,6 +99,21 @@ function SectionContent({ section }: { section: ContentSection }) {
 }
 
 export function ChapterViewer({ chapter, onBack }: ChapterViewerProps) {
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const section = getSectionByChapterId(`cap-${chapter.number}`)
+  const sectionTitle = section?.title || 'Manual de Urgencias'
+  const chapterId = `cap-${chapter.number}`
+  const isFav = isFavorite(chapterId)
+
+  const handleToggleFavorite = () => {
+    toggleFavorite({
+      id: chapterId,
+      number: chapter.number,
+      title: chapter.title,
+      sectionTitle
+    })
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Header */}
@@ -121,6 +138,19 @@ export function ChapterViewer({ chapter, onBack }: ChapterViewerProps) {
               {chapter.title}
             </h1>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleToggleFavorite}
+            className={`shrink-0 rounded-xl ${
+              isFav 
+                ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-500/10' 
+                : 'text-muted-foreground hover:text-amber-500 hover:bg-amber-500/10'
+            }`}
+          >
+            <Star className={`h-5 w-5 ${isFav ? 'fill-current' : ''}`} />
+            <span className="sr-only">{isFav ? 'Quitar de favoritos' : 'Agregar a favoritos'}</span>
+          </Button>
         </div>
       </header>
 
@@ -209,9 +239,13 @@ export function ChapterViewer({ chapter, onBack }: ChapterViewerProps) {
       {/* Bottom Actions */}
       <footer className="sticky bottom-0 bg-card border-t border-border p-4 pb-safe">
         <div className="flex gap-3 max-w-3xl mx-auto">
-          <Button variant="outline" className="flex-1 gap-2 h-12 rounded-xl">
-            <Bookmark className="h-4 w-4" />
-            Guardar
+          <Button 
+            variant={isFav ? "default" : "outline"} 
+            onClick={handleToggleFavorite}
+            className={`flex-1 gap-2 h-12 rounded-xl ${isFav ? 'bg-amber-500 hover:bg-amber-600 text-white' : ''}`}
+          >
+            <Star className={`h-4 w-4 ${isFav ? 'fill-current' : ''}`} />
+            {isFav ? 'En Favoritos' : 'Agregar a Favoritos'}
           </Button>
           <Button variant="outline" className="flex-1 gap-2 h-12 rounded-xl">
             <Share2 className="h-4 w-4" />

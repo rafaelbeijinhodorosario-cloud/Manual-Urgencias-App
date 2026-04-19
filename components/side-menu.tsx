@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronRight, BookOpen, Activity, Building2, Calculator } from 'lucide-react'
+import { ChevronRight, BookOpen, Activity, Building2, Calculator, Star } from 'lucide-react'
 import {
   Sheet,
   SheetContent,
@@ -16,9 +16,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
-import { specialties } from '@/lib/protocols'
-import { getAllChapters } from '@/lib/chapters-content'
+import { manualSections } from '@/lib/manual-index'
+import { useFavorites } from '@/hooks/use-favorites'
 
 interface SideMenuProps {
   isOpen: boolean
@@ -31,7 +30,7 @@ interface SideMenuProps {
 }
 
 export function SideMenu({ isOpen, onOpenChange, onSelectProtocol, onSelectChapter, onOpenHuil, onOpenCalculators, trigger }: SideMenuProps) {
-  const chapters = getAllChapters()
+  const { isFavorite, toggleFavorite } = useFavorites()
   
   const handleSelectProtocol = (protocolId: string) => {
     onSelectProtocol(protocolId)
@@ -43,6 +42,15 @@ export function SideMenu({ isOpen, onOpenChange, onSelectProtocol, onSelectChapt
       onSelectChapter(chapterNumber)
     }
     onOpenChange(false)
+  }
+  
+  const handleToggleFavorite = (chapter: { id: string; number: number; title: string }, sectionTitle: string) => {
+    toggleFavorite({
+      id: chapter.id,
+      number: chapter.number,
+      title: chapter.title,
+      sectionTitle
+    })
   }
 
   return (
@@ -105,78 +113,70 @@ export function SideMenu({ isOpen, onOpenChange, onSelectProtocol, onSelectChapt
               </div>
             )}
             
-            {/* Chapters Section */}
-            {chapters.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider mb-3 px-1">
-                  Capítulos disponibles
-                </h3>
-                <div className="space-y-1.5">
-                  {chapters.map((chapter) => (
-                    <Button
-                      key={chapter.id}
-                      variant="ghost"
-                      onClick={() => handleSelectChapter(chapter.number)}
-                      className="w-full justify-start h-auto py-3 px-3 text-left font-normal hover:bg-sidebar-accent rounded-xl transition-colors border border-sidebar-border/50"
-                    >
-                      <span className="flex items-center gap-3 w-full">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-500 text-xs font-bold shrink-0">
-                          {String(chapter.number).padStart(2, '0')}
-                        </span>
-                        <span className="flex-1 min-w-0">
-                          <span className="block text-sm text-sidebar-foreground truncate">
-                            {chapter.title}
-                          </span>
-                          <span className="block text-xs text-sidebar-foreground/50">
-                            {chapter.authors[0]}
-                          </span>
-                        </span>
-                        <ChevronRight className="h-4 w-4 shrink-0 opacity-40" />
-                      </span>
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-            
+            {/* Manual Index by Sections */}
             <h3 className="text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider mb-3 px-1">
-              Protocolos por especialidad
+              Índice del Manual
             </h3>
             <Accordion type="multiple" className="space-y-2">
-              {specialties.map((specialty) => (
+              {manualSections.map((section) => (
                 <AccordionItem
-                  key={specialty.id}
-                  value={specialty.id}
+                  key={section.id}
+                  value={section.id}
                   className="border border-sidebar-border rounded-xl bg-sidebar-accent/30 px-1 overflow-hidden"
                 >
                   <AccordionTrigger className="hover:no-underline py-3 px-3">
                     <span className="flex items-center gap-3 text-left">
-                      <span className="text-xl" role="img" aria-label={specialty.name}>
-                        {specialty.icon}
+                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary text-xs font-bold shrink-0">
+                        {section.chapters.length}
                       </span>
                       <span className="flex-1">
                         <span className="font-medium text-sm text-sidebar-foreground block">
-                          {specialty.name}
+                          {section.title}
                         </span>
                         <span className="text-xs text-sidebar-foreground/50">
-                          {specialty.protocols.length} protocolos
+                          Cap. {section.chapters[0]?.number}-{section.chapters[section.chapters.length - 1]?.number}
                         </span>
                       </span>
                     </span>
                   </AccordionTrigger>
-                  <AccordionContent className="pb-2 px-2">
-                    <div className="space-y-1 pl-9">
-                      {specialty.protocols.map((protocol) => (
-                        <Button
-                          key={protocol.id}
-                          variant="ghost"
-                          onClick={() => handleSelectProtocol(protocol.id)}
-                          className="w-full justify-between h-auto py-2.5 px-3 text-left text-sm font-normal text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg transition-colors"
-                        >
-                          <span className="truncate pr-2">{protocol.title}</span>
-                          <ChevronRight className="h-4 w-4 shrink-0 opacity-40" />
-                        </Button>
-                      ))}
+                  <AccordionContent className="pb-2 px-1">
+                    <div className="space-y-1">
+                      {section.chapters.map((chapter) => {
+                        const isFav = isFavorite(chapter.id)
+                        return (
+                          <div key={chapter.id} className="flex items-center gap-1 group">
+                            <Button
+                              variant="ghost"
+                              onClick={() => handleSelectChapter(chapter.number)}
+                              className="flex-1 justify-start h-auto py-2.5 px-3 text-left text-sm font-normal text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent rounded-lg transition-colors"
+                            >
+                              <span className="flex items-center gap-3 w-full">
+                                <span className="flex h-6 w-6 items-center justify-center rounded bg-sidebar-accent text-sidebar-foreground/60 text-xs font-medium shrink-0">
+                                  {chapter.number}
+                                </span>
+                                <span className="flex-1 truncate pr-1">
+                                  {chapter.title}
+                                </span>
+                              </span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleToggleFavorite(chapter, section.title)
+                              }}
+                              className={`h-8 w-8 shrink-0 ${
+                                isFav 
+                                  ? 'text-amber-500 hover:text-amber-600' 
+                                  : 'text-sidebar-foreground/30 hover:text-amber-500 opacity-0 group-hover:opacity-100'
+                              } transition-all`}
+                            >
+                              <Star className={`h-4 w-4 ${isFav ? 'fill-current' : ''}`} />
+                            </Button>
+                          </div>
+                        )
+                      })}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
